@@ -6,7 +6,7 @@ Wykonawca: Grzegorz Milaszkiewicz 226110
 
 Wątki: 
 
-1.Natura - rośnięcie drzew (jeden wątek)
+1.Natura - rośnięcie drzew (jeden wątek)\n
 2.Drwale - wycinka drzew (kilka wątków, około 5)
 3.Transportery (2 wątki)
 4.Pracownicy tartaku - przerabianie drewna na deski (kilkanaście wątków)
