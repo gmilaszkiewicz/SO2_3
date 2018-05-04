@@ -2,7 +2,7 @@
 SO2 - Sawmill simulation project
 
 ### Temat: Tartak
-### Wykonawca: Grzegorz Milaszkiewicz 226110
+
 
 ## Wątki: 
 
