@@ -1,5 +1,5 @@
 # SO2_3
-SO2 - Sawmill simulation project
+SO2 - Projekt symulacji tartaku
 
 ### Temat: Tartak
 
