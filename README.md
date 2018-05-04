@@ -6,7 +6,7 @@ SO2 - Projekt symulacji tartaku
 
 ## Wątki: 
 
-* Natura - rośnięcie drzew (jeden wątek)\n
+* Natura - rośnięcie drzew (jeden wątek)
 * Drwale - wycinka drzew (kilka wątków, około 5)
 * Transportery (2 wątki)
 * Pracownicy tartaku - przerabianie drewna na deski (kilkanaście wątków)
