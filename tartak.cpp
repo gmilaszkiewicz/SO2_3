@@ -8,51 +8,76 @@
 using namespace std;
 mutex mtx;
 
-const int numTree = 10;
-int treeStatus[numTree];
+
+const int numWoodcutter = 20;
+
+int treeStatus=50;
 bool endProgram=false;
-bool treeReady[numTree];
+
 
 void showStatus(){
     mtx.lock();
-	for (int i=0;i<numTree;i++)
-	{
-		mvprintw(i+4,5,"drzewo --> %d",treeStatus[i]);
-		refresh();
-	}
+		
+    mvprintw(4,5,"status -->    ",treeStatus);
+    mvprintw(4,5,"status --> %d",treeStatus);
+     
+	refresh();
+	
 	mtx.unlock();
 }
 
-void startThreadTree(int tID){
+//dochodzi do zagłodzenia wątku dlatego drzewa nie rosną :(
+    // las to jeden wątek, zaczyna od 50% i rośnie co 1%
+    // jak drwal zetnie drzewo to maleje o 1% 
 
-    while(!endProgram)
+
+
+void startThreedTree(){
+
+    while(1)
 	{
-		if(getch()==27)
-		{
-			endProgram=true;
-			break;
-		}
 
-showStatus();
-    
-    if(treeReady[tID]==false)
-    {
-         
-        for(int i=1;i<=10;i++)
+        showStatus();
+        
+        while(treeStatus!=100)
         {
-            usleep(rand() %1000000+100000);
-            treeStatus[tID]+=10;
-           showStatus();
+            usleep(100000);
+            treeStatus++;
+            showStatus();
         }
-        treeReady[tID]=true;
+
     }
     
 
 
-    }
 }
 
 
+
+// void startThreadWoodcutter(int tID){
+//     while(1)
+// 	{
+        
+//             mtx.lock();
+//             if(treeReady[i]==true)
+//             {
+//                 treeStatus[i]=0;
+//                 treeReady[i]=false;
+//             }
+            
+//             mtx.unlock();
+//             clear();
+//             showStatus();
+//             for(int i=1;i<=10;i++)
+//             {
+//                 usleep(rand() %1000+1000);
+//             }
+            
+        
+
+//     }
+
+// }
 
 
 
@@ -64,29 +89,23 @@ int main()
     refresh();
 
     srand(time(NULL));
-    thread tree[numTree];
+    thread tree;
+    tree = thread(startThreedTree);
 
-    for (int i = 0; i < numTree; i++)
-	{
-         treeReady[i]=false;
-    }
-    for (int i=0;i<5;i++)
-    {
-        treeReady[i]=true;
-        treeStatus[i]=100;
-    }
-     
-
-    for (int i = 0; i < numTree; i++)
-	{
-		tree[i] = thread(startThreadTree, i);
-	}
-
+    thread woodcutter[numWoodcutter];
     
-    for (int i = 0; i < numTree; i++)
-	{
-		tree[i].join();
-	}
+    for (int i=0;i<numWoodcutter;i++)
+    {
+    //    woodcutter[i]=thread(startThreadWoodcutter, i);
+    }
+    
+    for (int i=0;i<numWoodcutter;i++)
+    {
+       // woodcutter[i].join();
+    }
+
+    tree.join();
+
     endwin();
 
 
