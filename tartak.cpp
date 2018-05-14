@@ -7,12 +7,15 @@
 
 using namespace std;
 mutex mtx;
+bool endProgram=false;
 
-
-const int numWoodcutter = 20;
+const int numWoodcutter = 4;
 
 int treeStatus=50;
-bool endProgram=false;
+int cutTrees=0;
+
+
+
 
 
 void showStatus(){
@@ -20,6 +23,9 @@ void showStatus(){
 		
     mvprintw(4,5,"status -->    ",treeStatus);
     mvprintw(4,5,"status --> %d",treeStatus);
+
+    mvprintw(6,5,"ilosc scietych -->     ",cutTrees);
+    mvprintw(6,5,"ilosc scietych --> %d",cutTrees);
      
 	refresh();
 	
@@ -35,49 +41,36 @@ void showStatus(){
 void startThreedTree(){
 
     while(1)
-	{
-
-        showStatus();
-        
+    {
+        showStatus();   
         while(treeStatus!=100)
         {
-            usleep(100000);
+            usleep(rand()%1000000 + 1000);
             treeStatus++;
             showStatus();
         }
-
     }
-    
-
-
 }
 
 
 
-// void startThreadWoodcutter(int tID){
-//     while(1)
-// 	{
-        
-//             mtx.lock();
-//             if(treeReady[i]==true)
-//             {
-//                 treeStatus[i]=0;
-//                 treeReady[i]=false;
-//             }
-            
-//             mtx.unlock();
-//             clear();
-//             showStatus();
-//             for(int i=1;i<=10;i++)
-//             {
-//                 usleep(rand() %1000+1000);
-//             }
-            
-        
-
-//     }
-
-// }
+void startThreadWoodcutter(int tID){
+    while(1)
+	{
+        mtx.lock();
+        if(treeStatus>0)
+        {
+            treeStatus--;
+            cutTrees++;
+        }
+        mtx.unlock();
+        showStatus();
+        for(int i=0;i<10;i++)
+        {
+            usleep(rand() %1000000+1000);
+        }
+    }
+}
 
 
 
@@ -96,12 +89,12 @@ int main()
     
     for (int i=0;i<numWoodcutter;i++)
     {
-    //    woodcutter[i]=thread(startThreadWoodcutter, i);
+        woodcutter[i]=thread(startThreadWoodcutter, i);
     }
     
     for (int i=0;i<numWoodcutter;i++)
     {
-       // woodcutter[i].join();
+        woodcutter[i].join();
     }
 
     tree.join();
