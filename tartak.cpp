@@ -11,14 +11,18 @@ bool endProgram=false;
 
 const int numWoodcutter = 5;
 const int numDriver = 2;
+const int numSawmill = 3;
 
-int treeStatus=50;
-int cutTrees=0;
+int forestStatus=50;
+int cutTrees;
+int sawmillTreeStatus;
+
+int longPlankStatus;
+int shortPlankStatus;
 
 int driverStatus[numDriver];
 
 int counterWoodcuter[numWoodcutter];
-int counterDriver[numDriver];
 
 
 //int ctW, ctT;   //counter threed woodcuter, tree
@@ -27,11 +31,21 @@ int counterDriver[numDriver];
 void showStatus(){
     mtx.lock();
 		
-    mvprintw(4,5,"status -->    ",treeStatus);
-    mvprintw(4,5,"status --> %d",treeStatus);
+    mvprintw(4,5,"status -->    ",forestStatus);
+    mvprintw(4,5,"status --> %d",forestStatus);
 
-    mvprintw(6,5,"ilosc scietych -->     ",cutTrees);
+    mvprintw(6,5,"ilosc scietych -->     ");
     mvprintw(6,5,"ilosc scietych --> %d",cutTrees);
+
+    mvprintw(6,40,"ilosc drzew w tartaku -->     ");
+    mvprintw(6,40,"ilosc drzew w tartaku --> %d",sawmillTreeStatus);
+
+
+    mvprintw(6,80,"dlugie deski -->     ");
+    mvprintw(6,80,"dlugie deski --> %d",longPlankStatus);
+
+    mvprintw(7,80,"krotkie deski -->     ");
+    mvprintw(7,80,"krotkie deski --> %d",shortPlankStatus);
 
 
     for(int i=0;i<numDriver;i++)
@@ -46,8 +60,7 @@ void showStatus(){
     }
     
      
-	refresh();
-	
+	refresh();	
 	mtx.unlock();
 }
 
@@ -59,10 +72,10 @@ void startThreedTree(){
     while(1)
     {
             showStatus();   
-            while(treeStatus!=100)
+            while(forestStatus!=100)
             {
                 usleep(rand()%1000000 + 1000);
-                treeStatus++;
+                forestStatus++;
                 showStatus();
             }      
     
@@ -72,9 +85,9 @@ void startThreedTree(){
 void startThreadWoodcutter(int tID){
     while(1)
 	{
-            if(treeStatus<25)
+            if(forestStatus<25)
             {
-                while(treeStatus<50)
+                while(forestStatus<50)
                 {
                     usleep(100000);
                 }
@@ -85,9 +98,9 @@ void startThreadWoodcutter(int tID){
             {
                 counterWoodcuter[tID]++;
                 mtx.lock();
-                if(treeStatus>0)
+                if(forestStatus>0)
                 {
-                    treeStatus--;
+                    forestStatus--;
                     cutTrees++;
                 }
                 mtx.unlock();
@@ -102,18 +115,11 @@ void startThreadWoodcutter(int tID){
     }
 }
 
-//dodać kolejny wątek transportu - przy 20 ma wyruszać
-//drzewa mają być dodawane pojedynczo do ciężarówki 
-
 void startThreedDriver(int tID){
-    bool go=false;
+    bool go;
     while(1)
     {   
         go=false;
-        // while(cutTrees<20);
-        // {
-        //     usleep(100000);
-        // }
         mtx.lock();
         if(cutTrees>=20)
         {       
@@ -130,6 +136,7 @@ void startThreedDriver(int tID){
                 showStatus();
             }
             usleep(1000000);
+            sawmillTreeStatus+=20;
             for(int i=0;i<10;i++)
             {
                 usleep(100000);
@@ -141,7 +148,38 @@ void startThreedDriver(int tID){
     }
 }
 
+//dodać wątek tartaku (przerabianie drzew na deski)
 
+void startThreedSawmill(int tID){
+    bool make;
+    while(1)
+    {
+        make=false;
+        mtx.lock();
+        if(sawmillTreeStatus>0)
+        {       
+            sawmillTreeStatus--;
+            make=true;
+        }
+        mtx.unlock();
+
+        if(make)
+        {
+            for(int i=0;i<10;i++)
+            {
+                usleep(1000000);
+                longPlankStatus++;               
+                showStatus();
+            }
+            for(int i=0;i<5;i++)
+            {
+                usleep(1000000);
+                shortPlankStatus++;               
+                showStatus();
+            }
+        }
+    }
+}
 
 int main()
 {
@@ -154,6 +192,7 @@ int main()
     thread tree;
     thread woodcutter[numWoodcutter];
     thread driver[numDriver];
+    thread sawmill[numSawmill];
 //-------------------------------------------------------   
 
 
@@ -169,7 +208,11 @@ int main()
     for (int i=0;i<numDriver;i++)
     {
         driver[i]=thread(startThreedDriver, i);
-        counterDriver[i]=i;
+    }
+
+    for (int i=0;i<numSawmill;i++)
+    {
+        sawmill[i]=thread(startThreedSawmill, i);
     }
 
 //-------------------------------------------------------   
@@ -180,6 +223,7 @@ int main()
 
 //-------------------join-------------------------
 
+    tree.join();
     for (int i=0;i<numWoodcutter;i++)
     {
         woodcutter[i].join();
@@ -188,7 +232,10 @@ int main()
     {
         driver[i].join();
     }
-    tree.join();
+    for (int i=0;i<numSawmill;i++)
+    {
+        sawmill[i].join();
+    }
 
 //------------------------------------------------
 
