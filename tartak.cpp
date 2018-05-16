@@ -12,6 +12,9 @@ bool endProgram=false;
 const int numWoodcutter = 5;
 const int numDriver = 2;
 const int numSawmill = 3;
+const int numCarpenterChair = 4;
+const int numCarpenterTable = 4;
+const int numCarpenterBench = 4;
 
 int forestStatus=50;
 int cutTrees;
@@ -24,8 +27,9 @@ int driverStatus[numDriver];
 
 int counterWoodcuter[numWoodcutter];
 
-
-//int ctW, ctT;   //counter threed woodcuter, tree
+int chariStatus;
+int tableStatus;
+int benchStatus;
 
 
 void showStatus(){
@@ -148,8 +152,6 @@ void startThreedDriver(int tID){
     }
 }
 
-//dodać wątek tartaku (przerabianie drzew na deski)
-
 void startThreedSawmill(int tID){
     bool make;
     while(1)
@@ -167,18 +169,53 @@ void startThreedSawmill(int tID){
         {
             for(int i=0;i<10;i++)
             {
-                usleep(1000000);
-                longPlankStatus++;               
-                showStatus();
-            }
-            for(int i=0;i<5;i++)
-            {
-                usleep(1000000);
+                usleep(rand()%1000000+1000000);
                 shortPlankStatus++;               
-                showStatus();
+                showStatus();      
+                if(i%2)
+                {
+                    usleep(rand()%1000000+1000000);
+                    longPlankStatus++;               
+                    showStatus();
+                }
             }
         }
     }
+}
+
+//dodać wątek stolarzy 
+
+void startThreedCarpenterChair(int tID){
+    bool make;
+    while(1)
+    {
+        make = false;
+        mtx.lock();
+        if(shortPlankStatus>=5)
+        {       
+            shortPlankStatus-=5;
+            make=true;
+        }
+        mtx.unlock();
+        if(make)
+        {
+            for(int i=0;i<10;i++)
+            {
+                usleep(rand()%100000+100000);
+                //jakiś tam status produkcji mebla
+                showStatus();
+            }
+            chariStatus++;
+        }
+    }
+}
+
+void startThreedCarpenterTable(int tID){
+    
+}
+
+void startThreedCarpenterBench(int tID){
+    
 }
 
 int main()
@@ -193,6 +230,9 @@ int main()
     thread woodcutter[numWoodcutter];
     thread driver[numDriver];
     thread sawmill[numSawmill];
+    thread carpenterChair[numCarpenterChair];
+    thread carpenterTable[numCarpenterTable];
+    thread carpenterBench[numCarpenterBench];
 //-------------------------------------------------------   
 
 
@@ -204,7 +244,6 @@ int main()
         woodcutter[i]=thread(startThreadWoodcutter, i);
         counterWoodcuter[i]=0;
     }
-
     for (int i=0;i<numDriver;i++)
     {
         driver[i]=thread(startThreedDriver, i);
@@ -215,6 +254,18 @@ int main()
         sawmill[i]=thread(startThreedSawmill, i);
     }
 
+    for (int i=0;i<numCarpenterChair;i++)
+    {
+        carpenterChair[i]=thread(startThreedCarpenterChair, i);
+    }
+    for (int i=0;i<numCarpenterTable;i++)
+    {
+        carpenterTable[i]=thread(startThreedCarpenterTable, i);
+    }
+    for (int i=0;i<numCarpenterBench;i++)
+    {
+        carpenterBench[i]=thread(startThreedCarpenterBench, i);
+    }
 //-------------------------------------------------------   
    
 
@@ -236,7 +287,18 @@ int main()
     {
         sawmill[i].join();
     }
-
+    for (int i=0;i<numCarpenterChair;i++)
+    {
+        carpenterChair[i].join();
+    }
+    for (int i=0;i<numCarpenterTable;i++)
+    {
+        carpenterTable[i].join();
+    }
+    for (int i=0;i<numCarpenterBench;i++)
+    {
+        carpenterBench[i].join();
+    }
 //------------------------------------------------
 
     endwin();
