@@ -15,6 +15,7 @@ const int numSawmill = 6;
 const int numCarpenterChair = 4;
 const int numCarpenterTable = 4;
 const int numCarpenterBench = 4;
+const int numClient=3;
 
 int forestStatus=50;
 int cutTrees;
@@ -189,7 +190,6 @@ void startThreedSawmill(int tID){
     }
 }
 
-//dodać wątek klienta kupującego meble
 
 void startThreedCarpenterChair(int tID){
     bool make;
@@ -248,7 +248,7 @@ void startThreedCarpenterBench(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=4 && longPlankStatus>=3) && chariStatus-2<=tableStatus && chariStatus-2<=chariStatus)
+        if((shortPlankStatus>=4 && longPlankStatus>=3) && benchStatus-2<=tableStatus && benchStatus-2<=chariStatus)
         {       
             shortPlankStatus-=4;
             longPlankStatus-=3;
@@ -268,6 +268,17 @@ void startThreedCarpenterBench(int tID){
     }
 }
 
+//uzupełnić wątek klienta kupującego meble
+// z mebli ma być hajs który posłóży do szybszego rośnięcia lasu
+
+void startThreedClient(int tID){
+
+    while(1)
+    {
+
+    }
+}
+
 int main()
 {
     initscr();
@@ -283,6 +294,7 @@ int main()
     thread carpenterChair[numCarpenterChair];
     thread carpenterTable[numCarpenterTable];
     thread carpenterBench[numCarpenterBench];
+    thread client[numClient];
 //-------------------------------------------------------   
 
 
@@ -316,6 +328,10 @@ int main()
     {
         carpenterBench[i]=thread(startThreedCarpenterBench, i);
     }
+    for (int i=0;i<numClient;i++)
+    {
+        client[i]=thread(startThreedClient, i);
+    }
 //-------------------------------------------------------   
    
 
@@ -348,6 +364,10 @@ int main()
     for (int i=0;i<numCarpenterBench;i++)
     {
         carpenterBench[i].join();
+    }
+    for (int i=0;i<numClient;i++)
+    {
+        client[i].join();
     }
 //------------------------------------------------
 
