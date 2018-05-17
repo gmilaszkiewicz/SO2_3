@@ -11,7 +11,7 @@ bool endProgram=false;
 
 const int numWoodcutter = 5;
 const int numDriver = 2;
-const int numSawmill = 3;
+const int numSawmill = 6;
 const int numCarpenterChair = 4;
 const int numCarpenterTable = 4;
 const int numCarpenterBench = 4;
@@ -51,6 +51,12 @@ void showStatus(){
     mvprintw(7,80,"krotkie deski -->     ");
     mvprintw(7,80,"krotkie deski --> %d",shortPlankStatus);
 
+    mvprintw(7,110,"krzeslo -->     ");
+    mvprintw(7,110,"krzeslo --> %d",chariStatus);
+    mvprintw(8,110,"stol -->     ");
+    mvprintw(8,110,"stol --> %d",tableStatus);
+    mvprintw(9,110,"lawka -->     ");
+    mvprintw(9,110,"lawka --> %d",benchStatus);
 
     for(int i=0;i<numDriver;i++)
     {
@@ -183,7 +189,7 @@ void startThreedSawmill(int tID){
     }
 }
 
-//dodać wątek stolarzy 
+//dodać wątek klienta kupującego meble
 
 void startThreedCarpenterChair(int tID){
     bool make;
@@ -191,7 +197,7 @@ void startThreedCarpenterChair(int tID){
     {
         make = false;
         mtx.lock();
-        if(shortPlankStatus>=5)
+        if((shortPlankStatus>=5) && ((chariStatus-2)<=tableStatus) && ((chariStatus-2)<=benchStatus))
         {       
             shortPlankStatus-=5;
             make=true;
@@ -211,11 +217,55 @@ void startThreedCarpenterChair(int tID){
 }
 
 void startThreedCarpenterTable(int tID){
-    
+    bool make;
+    while(1)
+    {
+        make = false;
+        mtx.lock();
+        if((shortPlankStatus>=2 && longPlankStatus>=3) && tableStatus-2<=chariStatus && tableStatus-2<=benchStatus)
+        {       
+            shortPlankStatus-=2;
+            longPlankStatus-=3;
+            make=true;
+        }
+        mtx.unlock();
+        if(make)
+        {
+            for(int i=0;i<10;i++)
+            {
+                usleep(rand()%100000+100000);
+                //jakiś tam status produkcji mebla
+                showStatus();
+            }
+            tableStatus++;
+        }
+    }  
 }
 
 void startThreedCarpenterBench(int tID){
-    
+    bool make;
+    while(1)
+    {
+        make = false;
+        mtx.lock();
+        if((shortPlankStatus>=4 && longPlankStatus>=3) && chariStatus-2<=tableStatus && chariStatus-2<=chariStatus)
+        {       
+            shortPlankStatus-=4;
+            longPlankStatus-=3;
+            make=true;
+        }
+        mtx.unlock();
+        if(make)
+        {
+            for(int i=0;i<10;i++)
+            {
+                usleep(rand()%100000+100000);
+                //jakiś tam status produkcji mebla
+                showStatus();
+            }
+            benchStatus++;
+        }
+    }
 }
 
 int main()
