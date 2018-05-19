@@ -37,66 +37,122 @@ int growthRate=1;
 
 void showStatus(){
     mtx.lock();
-		
-    mvprintw(4,5,"status -->    ",forestStatus);
-    mvprintw(4,5,"status --> %d",forestStatus);
 
-    mvprintw(6,5,"ilosc scietych -->     ");
-    mvprintw(6,5,"ilosc scietych --> %d",cutTrees);
+   
 
-    mvprintw(6,40,"ilosc drzew w tartaku -->     ");
-    mvprintw(6,40,"ilosc drzew w tartaku --> %d",sawmillTreeStatus);
+    mvprintw(15,40,"ilosc drzew w tartaku -->     ");
+    mvprintw(15,40,"ilosc drzew w tartaku --> %d",sawmillTreeStatus);
 
 
-    mvprintw(6,80,"dlugie deski -->     ");
-    mvprintw(6,80,"dlugie deski --> %d",longPlankStatus);
+    mvprintw(15,80,"dlugie deski -->     ");
+    mvprintw(15,80,"dlugie deski --> %d",longPlankStatus);
 
-    mvprintw(7,80,"krotkie deski -->     ");
-    mvprintw(7,80,"krotkie deski --> %d",shortPlankStatus);
+    mvprintw(16,80,"krotkie deski -->     ");
+    mvprintw(16,80,"krotkie deski --> %d",shortPlankStatus);
 
-    mvprintw(7,110,"krzeslo -->     ");
-    mvprintw(7,110,"krzeslo --> %d",chariStatus);
-    mvprintw(8,110,"stol -->     ");
-    mvprintw(8,110,"stol --> %d",tableStatus);
-    mvprintw(9,110,"lawka -->     ");
-    mvprintw(9,110,"lawka --> %d",benchStatus);
+    mvprintw(15,110,"krzeslo -->     ");
+    mvprintw(15,110,"krzeslo --> %d",chariStatus);
+    mvprintw(16,110,"stol -->     ");
+    mvprintw(16,110,"stol --> %d",tableStatus);
+    mvprintw(17,110,"lawka -->     ");
+    mvprintw(17,110,"lawka --> %d",benchStatus);
     
     
-    mvprintw(7,150,"pieniadze -->     ");
-    mvprintw(7,150,"pieniadze --> %d",cash);
+    mvprintw(17,150,"pieniadze -->     ");
+    mvprintw(17,150,"pieniadze --> %d",cash);
 
-    mvprintw(8,150,"growthrate -->     ");
-    mvprintw(8,150,"growthrate --> %d",growthRate);
+    mvprintw(18,150,"growthrate -->     ");
+    mvprintw(18,150,"growthrate --> %d",growthRate);
 
     for(int i=0;i<numDriver;i++)
     {
-        mvprintw(8+i,25,"kierowca %d:    ",i);
-        mvprintw(8+i,25,"kierowca %d: %d",i, driverStatus[i]);
+        mvprintw(20+i,25,"kierowca %d:    ",i);
+        mvprintw(20+i,25,"kierowca %d: %d",i, driverStatus[i]);
     }
 
-    for(int i=0;i<numWoodcutter;i++)
-    {
-        mvprintw(8+i,5,"drwal %d: %d",i, counterWoodcuter[i]);
-    }
+    
     
      
 	refresh();	
 	mtx.unlock();
 }
 
+void showStatusForest(){
+    mtx.lock();
+    int counter = forestStatus;
+    counter*=2;
 
+    mvprintw(1,4,"Stan lasu -->    ",forestStatus);
+    mvprintw(1,4,"Stan lasu --> %d",forestStatus);
 
+    for(int i=0;i<10;i++)
+    {
+        for(int j=0;j<20;j++)
+        {
+            attron(COLOR_PAIR(1));
+            mvprintw(i+2,j+2," ");
+            attroff(COLOR_PAIR(1));
+        }
+    } 
+    for(int i=0;i<10;i++)
+    {
+        for(int j=0;j<20;j++)
+        {
+            if(counter>0)
+            {
+                attron(COLOR_PAIR(3));	
+                mvprintw(i+2,j+2," ");
+                attroff(COLOR_PAIR(3));
+                counter--;
+            } 
+        }
+    }
+    for(int i=0;i<numWoodcutter;i++)
+    {
+        mvprintw(13+i,2,"drwal %d: %d",i, counterWoodcuter[i]);
+    }
+    refresh();
+    mtx.unlock();
+    
+}
+
+void showStatusCutTrees(){
+    mtx.lock();
+    int counter = cutTrees;
+    mvprintw(1,27,"Ilosc pni -->     ");
+    mvprintw(1,27,"Ilosc pni --> %d",cutTrees);
+    for(int i=0;i<10;i++)
+    {
+        for(int j=0;j<10;j++)
+        {           
+            mvprintw(i+2,j+29," ");
+        }
+    }
+    for(int i=0;i<10;i++)
+    {
+        for(int j=0;j<10;j++)
+        {
+            if(counter>0)
+            {  
+                mvprintw(i+2,j+29,"*");
+                counter--;
+            } 
+        }
+    }
+    refresh();
+    mtx.unlock();
+}
 
 void startThreedTree(){
 
     while(1)
     {
-            showStatus();   
+            showStatusForest();   
             while(forestStatus!=100)
             {
                 usleep(rand()%1000000 + (int)(1000000/growthRate));
                 forestStatus++;
-                showStatus();
+                showStatusForest();
             }      
     
     }
@@ -118,15 +174,15 @@ void startThreadWoodcutter(int tID){
             {
                 counterWoodcuter[tID]++;
                 mtx.lock();
-                if(forestStatus>0)
+                if(forestStatus>0 && cutTrees<100)
                 {
                     forestStatus--;
                     cutTrees++;
                 }
                 mtx.unlock();
             }       
-            showStatus();
-
+            showStatusForest();
+            showStatusCutTrees();
             for(int i=0;i<10;i++)
             {
                 usleep(rand()%100000+100000);
@@ -196,10 +252,10 @@ void startThreedSawmill(int tID){
                 }
             }
         }
-        if(cash>=100)
+        if(cash>=100 && growthRate<1000000)
         {
             cash-=100;
-            growthRate*=10;
+            growthRate*=2;
         }
     }
 }
@@ -324,8 +380,19 @@ int main()
 {
     initscr();
 	nodelay(stdscr,TRUE);   
+
     refresh();
     srand(time(NULL));
+    clear();
+    start_color();
+    init_pair(1,  COLOR_BLACK,COLOR_RED);
+	init_pair(2,  COLOR_BLACK,COLOR_YELLOW);
+	init_pair(3,  COLOR_BLACK,COLOR_GREEN);
+	init_pair(4,  COLOR_BLACK,COLOR_BLUE);
+	init_pair(5,  COLOR_BLACK,COLOR_MAGENTA);
+	init_pair(6,  COLOR_BLACK,COLOR_WHITE);
+	init_pair(7,  COLOR_BLACK,COLOR_CYAN);
+
 
 //------------------deklaracja wątków--------------------
     thread tree;
@@ -375,9 +442,6 @@ int main()
     }
 //-------------------------------------------------------   
    
-
-
-
 
 //-------------------join-------------------------
 

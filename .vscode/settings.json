@@ -2,6 +2,8 @@
     "files.associations": {
         "iostream": "cpp",
         "thread": "cpp",
-        "mutex": "cpp"
+        "mutex": "cpp",
+        "*.tcc": "cpp",
+        "system_error": "cpp"
     }
 }
