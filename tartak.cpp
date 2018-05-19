@@ -32,6 +32,7 @@ int chariStatus;
 int tableStatus;
 int benchStatus;
 
+int cash;
 
 void showStatus(){
     mtx.lock();
@@ -58,6 +59,12 @@ void showStatus(){
     mvprintw(8,110,"stol --> %d",tableStatus);
     mvprintw(9,110,"lawka -->     ");
     mvprintw(9,110,"lawka --> %d",benchStatus);
+    
+    
+    mvprintw(7,150,"pieniadze -->     ");
+    mvprintw(7,150,"pieniadze --> %d",cash);
+
+
 
     for(int i=0;i<numDriver;i++)
     {
@@ -197,7 +204,7 @@ void startThreedCarpenterChair(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=5) && ((chariStatus-2)<=tableStatus) && ((chariStatus-2)<=benchStatus))
+        if((shortPlankStatus>=5) && (chariStatus<=tableStatus) && (chariStatus<=benchStatus))
         {       
             shortPlankStatus-=5;
             make=true;
@@ -222,7 +229,7 @@ void startThreedCarpenterTable(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=2 && longPlankStatus>=3) && tableStatus-2<=chariStatus && tableStatus-2<=benchStatus)
+        if((shortPlankStatus>=2 && longPlankStatus>=3) && tableStatus<=chariStatus && tableStatus<=benchStatus)
         {       
             shortPlankStatus-=2;
             longPlankStatus-=3;
@@ -248,7 +255,7 @@ void startThreedCarpenterBench(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=4 && longPlankStatus>=3) && benchStatus-2<=tableStatus && benchStatus-2<=chariStatus)
+        if((shortPlankStatus>=4 && longPlankStatus>=3) && benchStatus<=tableStatus && benchStatus<=chariStatus)
         {       
             shortPlankStatus-=4;
             longPlankStatus-=3;
@@ -275,7 +282,35 @@ void startThreedClient(int tID){
 
     while(1)
     {
-
+        int choice = rand()%3+1;
+        mtx.lock();
+        if(choice==1)
+        {
+            if(chariStatus>0)
+            {
+                chariStatus--;
+                cash+=10;
+            }
+        }
+        else if(choice==2)
+        {
+            if(tableStatus>0)
+            {
+                tableStatus--;
+                cash+=15;
+            }
+        }
+        else if(choice==3)
+        {
+            if(benchStatus>0)
+            {
+                benchStatus--;
+                cash+=20;
+            }
+        }
+        mtx.unlock();
+        showStatus();
+        usleep(10000000);
     }
 }
 
