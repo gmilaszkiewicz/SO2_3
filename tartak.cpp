@@ -33,6 +33,7 @@ int tableStatus;
 int benchStatus;
 
 int cash;
+int growthRate=1;
 
 void showStatus(){
     mtx.lock();
@@ -64,7 +65,8 @@ void showStatus(){
     mvprintw(7,150,"pieniadze -->     ");
     mvprintw(7,150,"pieniadze --> %d",cash);
 
-
+    mvprintw(8,150,"growthrate -->     ");
+    mvprintw(8,150,"growthrate --> %d",growthRate);
 
     for(int i=0;i<numDriver;i++)
     {
@@ -92,7 +94,7 @@ void startThreedTree(){
             showStatus();   
             while(forestStatus!=100)
             {
-                usleep(rand()%1000000 + 1000);
+                usleep(rand()%1000000 + (int)(1000000/growthRate));
                 forestStatus++;
                 showStatus();
             }      
@@ -194,6 +196,11 @@ void startThreedSawmill(int tID){
                 }
             }
         }
+        if(cash>=100)
+        {
+            cash-=100;
+            growthRate*=10;
+        }
     }
 }
 
@@ -275,8 +282,7 @@ void startThreedCarpenterBench(int tID){
     }
 }
 
-//uzupełnić wątek klienta kupującego meble
-// z mebli ma być hajs który posłóży do szybszego rośnięcia lasu
+//stworzyć oddzielne sekcje graficzne dla każdego wątku
 
 void startThreedClient(int tID){
 
