@@ -18,7 +18,7 @@ const int numCarpenterBench = 4;
 const int numClient=3;
 
 int forestStatus=50;
-int cutTrees=15;
+int cutTrees=90;
 int sawmillTreeStatus;
 
 int longPlankStatus;
@@ -37,11 +37,6 @@ int growthRate=1;
 
 void showStatus(){
     mtx.lock();
-
-   
-
-    mvprintw(15,40,"ilosc drzew w tartaku -->     ");
-    mvprintw(15,40,"ilosc drzew w tartaku --> %d",sawmillTreeStatus);
 
 
     mvprintw(15,80,"dlugie deski -->     ");
@@ -63,14 +58,34 @@ void showStatus(){
 
     mvprintw(18,150,"growthrate -->     ");
     mvprintw(18,150,"growthrate --> %d",growthRate);
-
-    
-
-    
-    
-     
+  
 	refresh();	
 	mtx.unlock();
+}
+
+void showStatusSawmillTree(){
+    mtx.lock();
+    int counter = sawmillTreeStatus;
+    mvprintw(1,173,"ilosc drzew w tartaku -->     ");
+    mvprintw(1,173,"ilosc drzew w tartaku --> %d",sawmillTreeStatus);
+
+    for(int i=0;i<10;i++)
+    {
+        for(int j=0;j<10;j++)
+        {
+            if(counter>0)
+            {  
+                mvprintw(i+2,j+182,"*");
+                counter--;
+            }
+            else
+            {
+                mvprintw(i+2,j+182," ");
+            }
+        }
+    }
+    refresh();
+    mtx.unlock();
 }
 
 void showStatusForest(){
@@ -145,30 +160,31 @@ void showStatusCutTrees(){
     mtx.unlock();
 }
 
+    
 void showStatusDriver1(int tID, int position){
     mtx.lock();
     if(position == 0)
     {
-        mvprintw(1+tID*5,45," _______________________");
-        mvprintw(2+tID*5,45,"|SO2                    |^_ __");
-        mvprintw(3+tID*5,45,"|                       ||=|##|_");
-        mvprintw(4+tID*5,45,"|________________.====._||_|__._]");
-        mvprintw(5+tID*5,45," `(_)(_)`       `(_)(_)\"\"\"=\"=(_)");
+        mvprintw(2+tID*5,45," _______________________");
+        mvprintw(3+tID*5,45,"|SO2                    |^_ __");
+        mvprintw(4+tID*5,45,"|                       ||=|##|_");
+        mvprintw(5+tID*5,45,"|________________.====._||_|__._]");
+        mvprintw(6+tID*5,45," `(_)(_)`       `(_)(_)\"\"\"=\"=(_)");
         refresh();
     }
     else
     {
         for(int i=45;i<145;i++)
         {
-            for(int j=1;j<=5;j++)
+            for(int j=2;j<=6;j++)
             {
                  mvprintw(j+tID*5,i-1,"                                     ");
             }
-            mvprintw(1+tID*5,i," _______________________");
-            mvprintw(2+tID*5,i,"|SO2  * * * * * * * * * |^_ __");
-            mvprintw(3+tID*5,i,"|* * * * * * * * * * * *||=|##|_");
-            mvprintw(4+tID*5,i,"|________________.====._||_|__._]");
-            mvprintw(5+tID*5,i," `(_)(_)`       `(_)(_)\"\"\"=\"=(_)");
+            mvprintw(2+tID*5,i," _______________________");
+            mvprintw(3+tID*5,i,"|SO2  * * * * * * * * * |^_ __");
+            mvprintw(4+tID*5,i,"|* * * * * * * * * * * *||=|##|_");
+            mvprintw(5+tID*5,i,"|________________.====._||_|__._]");
+            mvprintw(6+tID*5,i," `(_)(_)`       `(_)(_)\"\"\"=\"=(_)");
             refresh();
             usleep(20000);
         }
@@ -180,19 +196,19 @@ void showStatusDriver2(int tID){
     mtx.lock();
     for(int i=145;i>45;i--)
     {
-       for(int j=1;j<=5;j++)
+       for(int j=2;j<=6;j++)
         {
             mvprintw(j+tID*5,i-1,"                                     ");
         }
-        mvprintw(1+tID*5,i,"         ______________________");
-        mvprintw(2+tID*5,i,"   __ _^|                   SO2|");
-        mvprintw(3+tID*5,i," _|##||                        |");
-        mvprintw(4+tID*5,i,"[_.__|_||_.====._______________|");
-        mvprintw(5+tID*5,i," (_)=\"=\"\"\"(_)(_)`       `(_)(_)`");
+        mvprintw(2+tID*5,i,"         ______________________");
+        mvprintw(3+tID*5,i,"   __ _^|                   SO2|");
+        mvprintw(4+tID*5,i," _|##||                        |");
+        mvprintw(5+tID*5,i,"[_.__|_||_.====._______________|");
+        mvprintw(6+tID*5,i," (_)=\"=\"\"\"(_)(_)`       `(_)(_)`");
         refresh();
         usleep(20000);
     } 
-    for(int j=1;j<=5;j++)
+    for(int j=2;j<=6;j++)
     {
         mvprintw(j+tID*5,45,"                                     ");
     }
@@ -230,10 +246,11 @@ void startThreadWoodcutter(int tID){
             if((counterWoodcuter[tID]-3)<=counterWoodcuter[(2*numWoodcutter+tID-1)%numWoodcutter] &&
             (counterWoodcuter[tID]-3)<=counterWoodcuter[(2*numWoodcutter+tID+1)%numWoodcutter])
             {
-                counterWoodcuter[tID]++;
+                
                 mtx.lock();
                 if(forestStatus>0 && cutTrees<100)
                 {
+                    counterWoodcuter[tID]++;
                     forestStatus--;
                     cutTrees++;
                     work=true;
@@ -254,7 +271,8 @@ void startThreadWoodcutter(int tID){
     }
 }
 
-//wyświetlić stan pni w tartaku
+//dodać wizualizacje desek długich i krótkich
+
 
 void startThreedDriver(int tID){
     bool go;
@@ -274,9 +292,13 @@ void startThreedDriver(int tID){
              showStatusCutTrees();
              usleep(100000);
              showStatusDriver1(tID,1);
-             usleep(5000000);
+             usleep(500000); //czas postoju ciężarówki
+             while(sawmillTreeStatus>=80)
+             {
+                 usleep(500000);
+             }
              sawmillTreeStatus+=20;
-             //showStatusTartak trzeba dać
+             showStatusSawmillTree();
              usleep(100000);
              showStatusDriver2(tID);
         }
@@ -295,6 +317,7 @@ void startThreedSawmill(int tID){
             make=true;
         }
         mtx.unlock();
+        showStatusSawmillTree();
 
         if(make)
         {
@@ -351,9 +374,9 @@ void startThreedCarpenterTable(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=2 && longPlankStatus>=3) && tableStatus<=chariStatus && tableStatus<=benchStatus)
+        if((shortPlankStatus>=4 && longPlankStatus>=3) && tableStatus<=chariStatus && tableStatus<=benchStatus)
         {       
-            shortPlankStatus-=2;
+            shortPlankStatus-=4;
             longPlankStatus-=3;
             make=true;
         }
@@ -467,7 +490,6 @@ int main()
 
 
 //------------------uruchamianie wątków------------------
-
     tree = thread(startThreedTree);
     for (int i=0;i<numWoodcutter;i++)
     {
