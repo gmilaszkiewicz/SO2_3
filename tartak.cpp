@@ -169,7 +169,7 @@ void showStatusSawmill(){
             if(counter1>0)
             {  
                 attron(COLOR_PAIR(2));	
-                mvprintw(i+20,j+175,"D");
+                mvprintw(i+20,j+175,"d");
                 attroff(COLOR_PAIR(2));
                 counter1--;
             }
@@ -180,7 +180,7 @@ void showStatusSawmill(){
             if(counter2>0)
             {
                 attron(COLOR_PAIR(2));
-                mvprintw(i+30,j+175,"K");
+                mvprintw(i+30,j+175,"k");
                 attroff(COLOR_PAIR(2));
                 counter2--;
             }
@@ -254,22 +254,22 @@ void showStatusDriver2(int tID){
 void showStatusCarpenterChair(int tID, int position){
     mtx.lock();
 
-    mvprintw(15,110,"Produkcja krzesel"); // wywalić gdzieś do głównego showStatus
+    mvprintw(15,125,"Produkcja krzesel"); // wywalić gdzieś do głównego showStatus
     
-    mvprintw(16+tID,100,"Stolarz %d: ",tID);
+    mvprintw(17+tID,115,"Stolarz %d: ",tID);
     for(int i=0;i<10;i++)
     {
-        mvprintw(16+tID,111+i," ");
+        mvprintw(17+tID,126+i," ");
     }
     for(int i=0;i<position;i++)
     {
-        attron(COLOR_PAIR(2));
-        mvprintw(16+tID,111+i," ");
-        attroff(COLOR_PAIR(2));
+        attron(COLOR_PAIR(1));
+        mvprintw(17+tID,126+i," ");
+        attroff(COLOR_PAIR(1));
     }
     char procent = 37;
-    mvprintw(16+tID,121,"     ");
-    mvprintw(16+tID,121,"%d %c",position*10,procent);
+    mvprintw(17+tID,136,"     ");
+    mvprintw(17+tID,136,"%d %c",position*10,procent);
     refresh();
     mtx.unlock();
 }
@@ -277,22 +277,22 @@ void showStatusCarpenterChair(int tID, int position){
 void showStatusCarpenterTable(int tID, int position){
     mtx.lock();
 
-    mvprintw(22,110,"Produkcja stolow"); // wywalić gdzieś do głównego showStatus
+    mvprintw(25,125,"Produkcja stolow"); // wywalić gdzieś do głównego showStatus
     
-    mvprintw(23+tID,100,"Stolarz %d: ",tID);
+    mvprintw(27+tID,115,"Stolarz %d: ",tID);
     for(int i=0;i<10;i++)
     {
-        mvprintw(23+tID,111+i," ");
+        mvprintw(27+tID,126+i," ");
     }
     for(int i=0;i<position;i++)
     {
-        attron(COLOR_PAIR(2));
-        mvprintw(23+tID,111+i," ");
-        attroff(COLOR_PAIR(2));
+        attron(COLOR_PAIR(3));
+        mvprintw(27+tID,126+i," ");
+        attroff(COLOR_PAIR(3));
     }
     char procent = 37;
-    mvprintw(23+tID,121,"     ");
-    mvprintw(23+tID,121,"%d %c",position*10,procent);
+    mvprintw(27+tID,136,"     ");
+    mvprintw(27+tID,136,"%d %c",position*10,procent);
     refresh();
     mtx.unlock();
 }
@@ -300,22 +300,22 @@ void showStatusCarpenterTable(int tID, int position){
 void showStatusCarpenterBench(int tID, int position){
     mtx.lock();
 
-    mvprintw(29,110,"Produkcja lawek"); // wywalić gdzieś do głównego showStatus
+    mvprintw(35,125,"Produkcja lawek"); // wywalić gdzieś do głównego showStatus
     
-    mvprintw(30+tID,100,"Stolarz %d: ",tID);
+    mvprintw(37+tID,115,"Stolarz %d: ",tID);
     for(int i=0;i<10;i++)
     {
-        mvprintw(30+tID,111+i," ");
+        mvprintw(37+tID,126+i," ");
     }
     for(int i=0;i<position;i++)
     {
-        attron(COLOR_PAIR(2));
-        mvprintw(30+tID,111+i," ");
-        attroff(COLOR_PAIR(2));
+        attron(COLOR_PAIR(4));
+        mvprintw(37+tID,126+i," ");
+        attroff(COLOR_PAIR(4));
     }
     char procent = 37;
-    mvprintw(30+tID,121,"     ");
-    mvprintw(30+tID,121,"%d %c",position*10,procent);
+    mvprintw(37+tID,136,"     ");
+    mvprintw(37+tID,136,"%d %c",position*10,procent);
     refresh();
     mtx.unlock();
 }
@@ -377,7 +377,7 @@ void startThreadWoodcutter(int tID){
 }
 
 //jak starczy czasu to dodać wizualizacje produkcji desek
-//dodać wizualizacje produkcji mebli
+//dodać wizualizacje stanu magazynowego mebli
 
 void startThreedDriver(int tID){
     bool go;
