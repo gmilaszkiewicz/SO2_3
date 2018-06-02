@@ -9,7 +9,7 @@ using namespace std;
 mutex mtx;
 bool endProgram=false;
 
-const int numWoodcutter = 5;
+const int numWoodcutter = 20;
 const int numDriver = 2;
 const int numSawmill = 6;
 const int numCarpenterChair = 4;
@@ -31,6 +31,11 @@ int counterWoodcuter[numWoodcutter];
 int chairStatus;
 int tableStatus;
 int benchStatus;
+
+int chairStatusClient[numClient];
+int tableStatusClient[numClient];
+int benchStatusClient[numClient];
+int cashClient[numClient];
 
 int cash;
 int growthRate=1;
@@ -132,7 +137,6 @@ void showStatusWoodcuter(int tID, bool work){
     mtx.unlock();
 }
 
-
 void showStatusCutTrees(){
     mtx.lock();
     int counter = cutTrees;
@@ -199,7 +203,6 @@ void showStatusSawmill(){
                 
 }
 
-    
 void showStatusDriver1(int tID, int position){
     mtx.lock();
     if(position == 0)
@@ -254,10 +257,9 @@ void showStatusDriver2(int tID){
     mtx.unlock();
 }
 
-
 void showStatusCarpenterChair(int tID, int position){
     mtx.lock();
-
+     mvprintw(13,130,"Produkcja mebli"); //wywalić do głównego showStatus
     mvprintw(15,135,"Produkcja krzesel"); // wywalić gdzieś do głównego showStatus
     
     mvprintw(17+tID,125,"Stolarz %d: ",tID);
@@ -409,6 +411,17 @@ void showStatusBench(){
     mtx.unlock();
 }
 
+void showStatusClient(int tID){
+    mtx.lock();
+    
+
+    mvprintw(13,32,"Krzesla   Stoly   Lawki   Pieniadze",tID, chairStatusClient[tID], tableStatusClient[tID], benchStatusClient[tID]);
+    mvprintw(15+tID,20,"Klient %d:      %d        %d       %d         %d",tID, chairStatusClient[tID], 
+    tableStatusClient[tID], benchStatusClient[tID], cashClient[tID]);
+
+	refresh();	
+	mtx.unlock();
+}
 
 
 void startThreedTree(){
@@ -468,7 +481,8 @@ void startThreadWoodcutter(int tID){
 }
 
 //jak starczy czasu to dodać wizualizacje produkcji desek
-//dodać wizualizacje stanu magazynowego mebli
+//dodać info co kupił każdy klient i ile wydał pieniędzy
+//dodać wspólny showStatus tworzący "mapę" i napisy stałe
 
 void startThreedDriver(int tID){
     bool go;
@@ -632,6 +646,8 @@ void startThreedClient(int tID){
             {
                 chairStatus--;
                 cash+=10;
+                chairStatusClient[tID]++;
+                cashClient[tID]+=10;
             }
         }
         else if(choice==2)
@@ -640,6 +656,8 @@ void startThreedClient(int tID){
             {
                 tableStatus--;
                 cash+=15;
+                tableStatusClient[tID]++;
+                cashClient[tID]+=15;
             }
         }
         else if(choice==3)
@@ -648,10 +666,12 @@ void startThreedClient(int tID){
             {
                 benchStatus--;
                 cash+=20;
+                benchStatusClient[tID]++;
+                cashClient[tID]+=20;
             }
         }
         mtx.unlock();
-        showStatus();
+        showStatusClient(tID);
         usleep(5000000);
     }
 }
