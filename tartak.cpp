@@ -21,8 +21,8 @@ int forestStatus=50;
 int cutTrees=90;
 int sawmillTreeStatus;
 
-int longPlankStatus;
-int shortPlankStatus;
+int longPlankStatus=20;
+int shortPlankStatus=20;
 
 int driverStatus[numDriver];
 
@@ -38,26 +38,19 @@ int growthRate=1;
 void showStatus(){
     mtx.lock();
 
-
-    mvprintw(15,80,"dlugie deski -->     ");
-    mvprintw(15,80,"dlugie deski --> %d",longPlankStatus);
-
-    mvprintw(16,80,"krotkie deski -->     ");
-    mvprintw(16,80,"krotkie deski --> %d",shortPlankStatus);
-
-    mvprintw(15,110,"krzeslo -->     ");
-    mvprintw(15,110,"krzeslo --> %d",chariStatus);
-    mvprintw(16,110,"stol -->     ");
-    mvprintw(16,110,"stol --> %d",tableStatus);
-    mvprintw(17,110,"lawka -->     ");
-    mvprintw(17,110,"lawka --> %d",benchStatus);
+    mvprintw(15,70,"krzeslo -->     ");
+    mvprintw(15,70,"krzeslo --> %d",chariStatus);
+    mvprintw(16,70,"stol -->     ");
+    mvprintw(16,70,"stol --> %d",tableStatus);
+    mvprintw(17,70,"lawka -->     ");
+    mvprintw(17,70,"lawka --> %d",benchStatus);
     
     
-    mvprintw(17,150,"pieniadze -->     ");
-    mvprintw(17,150,"pieniadze --> %d",cash);
+    mvprintw(25,15,"pieniadze -->     ");
+    mvprintw(25,15,"pieniadze --> %d",cash);
 
-    mvprintw(18,150,"growthrate -->     ");
-    mvprintw(18,150,"growthrate --> %d",growthRate);
+    mvprintw(26,15,"growthrate -->     ");
+    mvprintw(26,15,"growthrate --> %d",growthRate);
   
 	refresh();	
 	mtx.unlock();
@@ -160,6 +153,48 @@ void showStatusCutTrees(){
     mtx.unlock();
 }
 
+void showStatusSawmill(){
+    mtx.lock();
+    int counter1 = longPlankStatus;
+    int counter2 = shortPlankStatus;
+    mvprintw(19,173,"dlugie deski -->     ");
+    mvprintw(19,173,"dlugie deski --> %d",longPlankStatus);
+
+    mvprintw(29,173,"krotkie deski -->     ");
+    mvprintw(29,173,"krotkie deski --> %d",shortPlankStatus);
+    for(int i=0;i<5;i++)
+    {
+        for(int j=0;j<10;j++)
+        {
+            if(counter1>0)
+            {  
+                attron(COLOR_PAIR(2));	
+                mvprintw(i+20,j+175,"D");
+                attroff(COLOR_PAIR(2));
+                counter1--;
+            }
+            else
+            {
+                mvprintw(i+20,j+175," ");
+            }
+            if(counter2>0)
+            {
+                attron(COLOR_PAIR(2));
+                mvprintw(i+30,j+175,"K");
+                attroff(COLOR_PAIR(2));
+                counter2--;
+            }
+            else
+            {
+                 mvprintw(i+30,j+175," ");
+            }
+        }
+    }
+    refresh();
+    mtx.unlock();
+                
+}
+
     
 void showStatusDriver1(int tID, int position){
     mtx.lock();
@@ -212,6 +247,76 @@ void showStatusDriver2(int tID){
     {
         mvprintw(j+tID*5,45,"                                     ");
     }
+    mtx.unlock();
+}
+
+
+void showStatusCarpenterChair(int tID, int position){
+    mtx.lock();
+
+    mvprintw(15,110,"Produkcja krzesel"); // wywalić gdzieś do głównego showStatus
+    
+    mvprintw(16+tID,100,"Stolarz %d: ",tID);
+    for(int i=0;i<10;i++)
+    {
+        mvprintw(16+tID,111+i," ");
+    }
+    for(int i=0;i<position;i++)
+    {
+        attron(COLOR_PAIR(2));
+        mvprintw(16+tID,111+i," ");
+        attroff(COLOR_PAIR(2));
+    }
+    char procent = 37;
+    mvprintw(16+tID,121,"     ");
+    mvprintw(16+tID,121,"%d %c",position*10,procent);
+    refresh();
+    mtx.unlock();
+}
+
+void showStatusCarpenterTable(int tID, int position){
+    mtx.lock();
+
+    mvprintw(22,110,"Produkcja stolow"); // wywalić gdzieś do głównego showStatus
+    
+    mvprintw(23+tID,100,"Stolarz %d: ",tID);
+    for(int i=0;i<10;i++)
+    {
+        mvprintw(23+tID,111+i," ");
+    }
+    for(int i=0;i<position;i++)
+    {
+        attron(COLOR_PAIR(2));
+        mvprintw(23+tID,111+i," ");
+        attroff(COLOR_PAIR(2));
+    }
+    char procent = 37;
+    mvprintw(23+tID,121,"     ");
+    mvprintw(23+tID,121,"%d %c",position*10,procent);
+    refresh();
+    mtx.unlock();
+}
+
+void showStatusCarpenterBench(int tID, int position){
+    mtx.lock();
+
+    mvprintw(29,110,"Produkcja lawek"); // wywalić gdzieś do głównego showStatus
+    
+    mvprintw(30+tID,100,"Stolarz %d: ",tID);
+    for(int i=0;i<10;i++)
+    {
+        mvprintw(30+tID,111+i," ");
+    }
+    for(int i=0;i<position;i++)
+    {
+        attron(COLOR_PAIR(2));
+        mvprintw(30+tID,111+i," ");
+        attroff(COLOR_PAIR(2));
+    }
+    char procent = 37;
+    mvprintw(30+tID,121,"     ");
+    mvprintw(30+tID,121,"%d %c",position*10,procent);
+    refresh();
     mtx.unlock();
 }
 
@@ -271,8 +376,8 @@ void startThreadWoodcutter(int tID){
     }
 }
 
-//dodać wizualizacje desek długich i krótkich
-
+//jak starczy czasu to dodać wizualizacje produkcji desek
+//dodać wizualizacje produkcji mebli
 
 void startThreedDriver(int tID){
     bool go;
@@ -325,12 +430,12 @@ void startThreedSawmill(int tID){
             {
                 usleep(rand()%1000000+1000000);
                 shortPlankStatus++;               
-                showStatus();      
+                showStatusSawmill();     
                 if(i%2)
                 {
                     usleep(rand()%1000000+1000000);
                     longPlankStatus++;               
-                    showStatus();
+                    showStatusSawmill();
                 }
             }
         }
@@ -355,13 +460,13 @@ void startThreedCarpenterChair(int tID){
             make=true;
         }
         mtx.unlock();
+        showStatusSawmill();
         if(make)
         {
-            for(int i=0;i<10;i++)
+            for(int i=1;i<=10;i++)
             {
                 usleep(rand()%100000+100000);
-                //jakiś tam status produkcji mebla
-                showStatus();
+                showStatusCarpenterChair(tID, i);
             }
             chariStatus++;
         }
@@ -381,13 +486,13 @@ void startThreedCarpenterTable(int tID){
             make=true;
         }
         mtx.unlock();
+        showStatusSawmill();
         if(make)
         {
-            for(int i=0;i<10;i++)
+            for(int i=1;i<=10;i++)
             {
                 usleep(rand()%100000+100000);
-                //jakiś tam status produkcji mebla
-                showStatus();
+                showStatusCarpenterTable(tID, i);
             }
             tableStatus++;
         }
@@ -407,20 +512,19 @@ void startThreedCarpenterBench(int tID){
             make=true;
         }
         mtx.unlock();
+        showStatusSawmill();
         if(make)
         {
-            for(int i=0;i<10;i++)
+            for(int i=1;i<=10;i++)
             {
                 usleep(rand()%100000+100000);
-                //jakiś tam status produkcji mebla
+               showStatusCarpenterBench(tID, i);
                 showStatus();
             }
             benchStatus++;
         }
     }
 }
-
-//stworzyć oddzielne sekcje graficzne dla każdego wątku
 
 void startThreedClient(int tID){
 
@@ -488,7 +592,6 @@ int main()
     thread client[numClient];
 //-------------------------------------------------------   
 
-
 //------------------uruchamianie wątków------------------
     tree = thread(startThreedTree);
     for (int i=0;i<numWoodcutter;i++)
@@ -523,7 +626,6 @@ int main()
         client[i]=thread(startThreedClient, i);
     }
 //-------------------------------------------------------   
-   
 
 //-------------------join-------------------------
 
@@ -559,7 +661,5 @@ int main()
 //------------------------------------------------
 
     endwin();
-
-
-  return 0;
+    return 0;
 }
