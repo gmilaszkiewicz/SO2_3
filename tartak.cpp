@@ -18,8 +18,8 @@ const int numCarpenterBench = 4;
 const int numClient=3;
 
 int forestStatus=50;
-int cutTrees=90;
-int sawmillTreeStatus;
+int cutTrees=0;
+int sawmillTreeStatus=20;
 
 int longPlankStatus=20;
 int shortPlankStatus=20;
@@ -28,7 +28,7 @@ int driverStatus[numDriver];
 
 int counterWoodcuter[numWoodcutter];
 
-int chariStatus;
+int chairStatus;
 int tableStatus;
 int benchStatus;
 
@@ -38,14 +38,18 @@ int growthRate=1;
 void showStatus(){
     mtx.lock();
 
-    mvprintw(15,70,"krzeslo -->     ");
-    mvprintw(15,70,"krzeslo --> %d",chariStatus);
-    mvprintw(16,70,"stol -->     ");
-    mvprintw(16,70,"stol --> %d",tableStatus);
-    mvprintw(17,70,"lawka -->     ");
-    mvprintw(17,70,"lawka --> %d",benchStatus);
+    //mvprintw(15,70,"krzeslo -->     ");
+    //mvprintw(15,70,"krzeslo --> %d",chariStatus);
+   // mvprintw(16,70,"stol -->     ");
+   // mvprintw(16,70,"stol --> %d",tableStatus);
+    //mvprintw(17,70,"lawka -->     ");
+   // mvprintw(17,70,"lawka --> %d",benchStatus);
     
-    
+    for (int i=0;i<150;i++)
+    {
+    mvprintw(12,25+i,"-");
+
+    }
     mvprintw(25,15,"pieniadze -->     ");
     mvprintw(25,15,"pieniadze --> %d",cash);
 
@@ -254,22 +258,22 @@ void showStatusDriver2(int tID){
 void showStatusCarpenterChair(int tID, int position){
     mtx.lock();
 
-    mvprintw(15,125,"Produkcja krzesel"); // wywalić gdzieś do głównego showStatus
+    mvprintw(15,135,"Produkcja krzesel"); // wywalić gdzieś do głównego showStatus
     
-    mvprintw(17+tID,115,"Stolarz %d: ",tID);
+    mvprintw(17+tID,125,"Stolarz %d: ",tID);
     for(int i=0;i<10;i++)
     {
-        mvprintw(17+tID,126+i," ");
+        mvprintw(17+tID,136+i," ");
     }
     for(int i=0;i<position;i++)
     {
         attron(COLOR_PAIR(1));
-        mvprintw(17+tID,126+i," ");
+        mvprintw(17+tID,136+i," ");
         attroff(COLOR_PAIR(1));
     }
     char procent = 37;
-    mvprintw(17+tID,136,"     ");
-    mvprintw(17+tID,136,"%d %c",position*10,procent);
+    mvprintw(17+tID,146,"     ");
+    mvprintw(17+tID,146,"%d %c",position*10,procent);
     refresh();
     mtx.unlock();
 }
@@ -277,22 +281,22 @@ void showStatusCarpenterChair(int tID, int position){
 void showStatusCarpenterTable(int tID, int position){
     mtx.lock();
 
-    mvprintw(25,125,"Produkcja stolow"); // wywalić gdzieś do głównego showStatus
+    mvprintw(25,135,"Produkcja stolow"); // wywalić gdzieś do głównego showStatus
     
-    mvprintw(27+tID,115,"Stolarz %d: ",tID);
+    mvprintw(27+tID,125,"Stolarz %d: ",tID);
     for(int i=0;i<10;i++)
     {
-        mvprintw(27+tID,126+i," ");
+        mvprintw(27+tID,136+i," ");
     }
     for(int i=0;i<position;i++)
     {
         attron(COLOR_PAIR(3));
-        mvprintw(27+tID,126+i," ");
+        mvprintw(27+tID,136+i," ");
         attroff(COLOR_PAIR(3));
     }
     char procent = 37;
-    mvprintw(27+tID,136,"     ");
-    mvprintw(27+tID,136,"%d %c",position*10,procent);
+    mvprintw(27+tID,146,"     ");
+    mvprintw(27+tID,146,"%d %c",position*10,procent);
     refresh();
     mtx.unlock();
 }
@@ -300,25 +304,112 @@ void showStatusCarpenterTable(int tID, int position){
 void showStatusCarpenterBench(int tID, int position){
     mtx.lock();
 
-    mvprintw(35,125,"Produkcja lawek"); // wywalić gdzieś do głównego showStatus
+    mvprintw(35,135,"Produkcja lawek"); // wywalić gdzieś do głównego showStatus
     
-    mvprintw(37+tID,115,"Stolarz %d: ",tID);
+    mvprintw(37+tID,125,"Stolarz %d: ",tID);
     for(int i=0;i<10;i++)
     {
-        mvprintw(37+tID,126+i," ");
+        mvprintw(37+tID,136+i," ");
     }
     for(int i=0;i<position;i++)
     {
         attron(COLOR_PAIR(4));
-        mvprintw(37+tID,126+i," ");
+        mvprintw(37+tID,136+i," ");
         attroff(COLOR_PAIR(4));
     }
     char procent = 37;
-    mvprintw(37+tID,136,"     ");
-    mvprintw(37+tID,136,"%d %c",position*10,procent);
+    mvprintw(37+tID,146,"     ");
+    mvprintw(37+tID,146,"%d %c",position*10,procent);
     refresh();
     mtx.unlock();
 }
+
+void showStatusChair(){
+    mtx.lock();
+
+    mvprintw(13,95,"Gotowe meble"); //dodać do wspólnego showStatus
+    
+    mvprintw(15,95,"Krzesla -->   ", chairStatus);
+    mvprintw(15,95,"Krzesla --> %d", chairStatus);     
+
+
+    int counter = chairStatus;
+
+    for(int i=0;i<5;i++)
+    {
+        for(int j=0;j<10;j++)
+        {
+            if(counter>0)
+            {  
+                attron(COLOR_PAIR(1));
+                mvprintw(i+17,j+95,"K");
+                attroff(COLOR_PAIR(1));
+                counter--;
+            }
+            else
+            {
+                mvprintw(i+17,j+95," ");
+            }
+        }
+    }
+
+    refresh();
+    mtx.unlock();
+}
+
+void showStatusTable(){
+    mtx.lock(); 
+    mvprintw(25,95,"Stoly -->   ", tableStatus);
+    mvprintw(25,95,"Stoly --> %d", tableStatus);     
+    int counter = tableStatus;
+    for(int i=0;i<5;i++)
+    {
+        for(int j=0;j<10;j++)
+        {
+            if(counter>0)
+            {  
+                attron(COLOR_PAIR(3));
+                mvprintw(i+27,j+95,"S");
+                attroff(COLOR_PAIR(3));
+                counter--;
+            }
+            else
+            {
+                mvprintw(i+27,j+95," ");
+            }
+        }
+    }
+    refresh();
+    mtx.unlock();
+}
+
+void showStatusBench(){
+    mtx.lock(); 
+    mvprintw(35,95,"Lawki -->   ", benchStatus);
+    mvprintw(35,95,"Lawki --> %d", benchStatus);     
+    int counter = benchStatus;
+    for(int i=0;i<5;i++)
+    {
+        for(int j=0;j<10;j++)
+        {
+            if(counter>0)
+            {  
+                attron(COLOR_PAIR(4));
+                mvprintw(i+37,j+95,"L");
+                attroff(COLOR_PAIR(4));
+                counter--;
+            }
+            else
+            {
+                mvprintw(i+37,j+95," ");
+            }
+        }
+    }
+    refresh();
+    mtx.unlock();
+}
+
+
 
 void startThreedTree(){
 
@@ -454,7 +545,7 @@ void startThreedCarpenterChair(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=5) && (chariStatus<=tableStatus) && (chariStatus<=benchStatus))
+        if((shortPlankStatus>=5) && (chairStatus<=tableStatus) && (chairStatus<=benchStatus))
         {       
             shortPlankStatus-=5;
             make=true;
@@ -468,7 +559,8 @@ void startThreedCarpenterChair(int tID){
                 usleep(rand()%100000+100000);
                 showStatusCarpenterChair(tID, i);
             }
-            chariStatus++;
+            chairStatus++;
+            showStatusChair();
         }
     }
 }
@@ -479,7 +571,7 @@ void startThreedCarpenterTable(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=4 && longPlankStatus>=3) && tableStatus<=chariStatus && tableStatus<=benchStatus)
+        if((shortPlankStatus>=4 && longPlankStatus>=3) && tableStatus<=chairStatus && tableStatus<=benchStatus)
         {       
             shortPlankStatus-=4;
             longPlankStatus-=3;
@@ -495,6 +587,7 @@ void startThreedCarpenterTable(int tID){
                 showStatusCarpenterTable(tID, i);
             }
             tableStatus++;
+            showStatusTable();
         }
     }  
 }
@@ -505,7 +598,7 @@ void startThreedCarpenterBench(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=4 && longPlankStatus>=3) && benchStatus<=tableStatus && benchStatus<=chariStatus)
+        if((shortPlankStatus>=4 && longPlankStatus>=3) && benchStatus<=tableStatus && benchStatus<=chairStatus)
         {       
             shortPlankStatus-=4;
             longPlankStatus-=3;
@@ -522,6 +615,7 @@ void startThreedCarpenterBench(int tID){
                 showStatus();
             }
             benchStatus++;
+            showStatusBench();
         }
     }
 }
@@ -534,9 +628,9 @@ void startThreedClient(int tID){
         mtx.lock();
         if(choice==1)
         {
-            if(chariStatus>0)
+            if(chairStatus>0)
             {
-                chariStatus--;
+                chairStatus--;
                 cash+=10;
             }
         }
