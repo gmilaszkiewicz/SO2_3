@@ -48,18 +48,43 @@ void showStatus(){
     {
     mvprintw(12,25+i,"-");
     }
+    for(int i=0;i<45;i++)
+    {
+        mvprintw(13+i,25,"|");
+    }
+    for(int i=0;i<45;i++)
+    {
+        mvprintw(13+i,90,"|");
+    }
+    mvprintw(1,173,"Ilosc drzew w tartaku --> %d",sawmillTreeStatus);
+    mvprintw(1,4,"Stan lasu --> %d",forestStatus);
+    mvprintw(1,27,"Ilosc pni --> %d",cutTrees);
+    mvprintw(19,173,"dlugie deski --> %d",longPlankStatus);
+    mvprintw(29,173,"krotkie deski --> %d",shortPlankStatus);
+    mvprintw(13,130,"Produkcja mebli"); 
+    mvprintw(15,135,"Produkcja krzesel"); 
+    mvprintw(25,135,"Produkcja stolow"); 
+    mvprintw(35,135,"Produkcja lawek"); 
+    mvprintw(13,95,"Gotowe meble"); 
+    mvprintw(15,95,"Krzesla --> %d", chairStatus);     
+    mvprintw(25,95,"Stoly --> %d", tableStatus);     
+    mvprintw(35,95,"Lawki --> %d", benchStatus);     
+    mvprintw(13,55,"Sprzedane meble");
+    mvprintw(15,47,"Krzesla   Stoly   Lawki   Pieniadze");
+    mvprintw(35,35,"pieniadze --> %d",cash);
+    mvprintw(36,35,"growthrate --> %d",growthRate);
 
 
-  
-	refresh();	
+
+    refresh();	
 	mtx.unlock();
 }
 
 void showStatusSawmillTree(){
     mtx.lock();
     int counter = sawmillTreeStatus;
-    mvprintw(1,173,"ilosc drzew w tartaku -->     ");
-    mvprintw(1,173,"ilosc drzew w tartaku --> %d",sawmillTreeStatus);
+    mvprintw(1,173,"Ilosc drzew w tartaku -->     ");
+    mvprintw(1,173,"Ilosc drzew w tartaku --> %d",sawmillTreeStatus);
 
     for(int i=0;i<10;i++)
     {
@@ -84,7 +109,7 @@ void showStatusForest(){
     mtx.lock();
     int counter = forestStatus;
     counter*=2;
-    mvprintw(1,4,"Stan lasu -->    ",forestStatus);
+    mvprintw(1,4,"Stan lasu -->    ");
     mvprintw(1,4,"Stan lasu --> %d",forestStatus);
     for(int i=0;i<10;i++)
     {
@@ -249,9 +274,6 @@ void showStatusDriver2(int tID){
 
 void showStatusCarpenterChair(int tID, int position){
     mtx.lock();
-     mvprintw(13,130,"Produkcja mebli"); //wywalić do głównego showStatus
-    mvprintw(15,135,"Produkcja krzesel"); // wywalić gdzieś do głównego showStatus
-    
     mvprintw(17+tID,125,"Stolarz %d: ",tID);
     for(int i=0;i<10;i++)
     {
@@ -272,9 +294,6 @@ void showStatusCarpenterChair(int tID, int position){
 
 void showStatusCarpenterTable(int tID, int position){
     mtx.lock();
-
-    mvprintw(25,135,"Produkcja stolow"); // wywalić gdzieś do głównego showStatus
-    
     mvprintw(27+tID,125,"Stolarz %d: ",tID);
     for(int i=0;i<10;i++)
     {
@@ -294,10 +313,7 @@ void showStatusCarpenterTable(int tID, int position){
 }
 
 void showStatusCarpenterBench(int tID, int position){
-    mtx.lock();
-
-    mvprintw(35,135,"Produkcja lawek"); // wywalić gdzieś do głównego showStatus
-    
+    mtx.lock();    
     mvprintw(37+tID,125,"Stolarz %d: ",tID);
     for(int i=0;i<10;i++)
     {
@@ -318,15 +334,9 @@ void showStatusCarpenterBench(int tID, int position){
 
 void showStatusChair(){
     mtx.lock();
-
-    mvprintw(13,95,"Gotowe meble"); //dodać do wspólnego showStatus
-    
     mvprintw(15,95,"Krzesla -->   ", chairStatus);
     mvprintw(15,95,"Krzesla --> %d", chairStatus);     
-
-
     int counter = chairStatus;
-
     for(int i=0;i<5;i++)
     {
         for(int j=0;j<10;j++)
@@ -344,14 +354,13 @@ void showStatusChair(){
             }
         }
     }
-
     refresh();
     mtx.unlock();
 }
 
 void showStatusTable(){
     mtx.lock(); 
-    mvprintw(25,95,"Stoly -->   ", tableStatus);
+    mvprintw(25,95,"Stoly -->   ");
     mvprintw(25,95,"Stoly --> %d", tableStatus);     
     int counter = tableStatus;
     for(int i=0;i<5;i++)
@@ -377,7 +386,7 @@ void showStatusTable(){
 
 void showStatusBench(){
     mtx.lock(); 
-    mvprintw(35,95,"Lawki -->   ", benchStatus);
+    mvprintw(35,95,"Lawki -->   ");
     mvprintw(35,95,"Lawki --> %d", benchStatus);     
     int counter = benchStatus;
     for(int i=0;i<5;i++)
@@ -403,29 +412,21 @@ void showStatusBench(){
 
 void showStatusClient(int tID){
     mtx.lock();
-    
-    mvprintw(13,55,"Sprzedane meble");
-    mvprintw(15,47,"Krzesla   Stoly   Lawki   Pieniadze",tID, chairStatusClient[tID], tableStatusClient[tID], benchStatusClient[tID]);
     mvprintw(17+tID,35,"Klient %d:      %d        %d       %d         %d",tID, chairStatusClient[tID], 
     tableStatusClient[tID], benchStatusClient[tID], cashClient[tID]);
-
 	refresh();	
 	mtx.unlock();
 }
 
 void showStatusCash(){
     mtx.lock();
-
     mvprintw(35,35,"pieniadze -->     ");
     mvprintw(35,35,"pieniadze --> %d",cash);
-
     mvprintw(36,35,"growthrate -->     ");
     mvprintw(36,35,"growthrate --> %d",growthRate);
-
     refresh();
     mtx.unlock();
 }
-
 
 void startThreedTree(){
 
@@ -482,8 +483,6 @@ void startThreadWoodcutter(int tID){
         
     }
 }
-
-//dodać wspólny showStatus tworzący "mapę" i napisy stałe
 
 void startThreedDriver(int tID){
     bool go;
@@ -628,7 +627,6 @@ void startThreedCarpenterBench(int tID){
             {
                 usleep(rand()%100000+100000);
                showStatusCarpenterBench(tID, i);
-                showStatus();
             }
             benchStatus++;
             showStatusBench();
@@ -708,7 +706,7 @@ int main()
     thread carpenterBench[numCarpenterBench];
     thread client[numClient];
 //-------------------------------------------------------   
-
+showStatus();
 //------------------uruchamianie wątków------------------
     tree = thread(startThreedTree);
     for (int i=0;i<numWoodcutter;i++)
