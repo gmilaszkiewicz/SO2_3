@@ -43,23 +43,13 @@ int growthRate=1;
 void showStatus(){
     mtx.lock();
 
-    //mvprintw(15,70,"krzeslo -->     ");
-    //mvprintw(15,70,"krzeslo --> %d",chariStatus);
-   // mvprintw(16,70,"stol -->     ");
-   // mvprintw(16,70,"stol --> %d",tableStatus);
-    //mvprintw(17,70,"lawka -->     ");
-   // mvprintw(17,70,"lawka --> %d",benchStatus);
     
     for (int i=0;i<150;i++)
     {
     mvprintw(12,25+i,"-");
-
     }
-    mvprintw(25,15,"pieniadze -->     ");
-    mvprintw(25,15,"pieniadze --> %d",cash);
 
-    mvprintw(26,15,"growthrate -->     ");
-    mvprintw(26,15,"growthrate --> %d",growthRate);
+
   
 	refresh();	
 	mtx.unlock();
@@ -414,13 +404,26 @@ void showStatusBench(){
 void showStatusClient(int tID){
     mtx.lock();
     
-
-    mvprintw(13,32,"Krzesla   Stoly   Lawki   Pieniadze",tID, chairStatusClient[tID], tableStatusClient[tID], benchStatusClient[tID]);
-    mvprintw(15+tID,20,"Klient %d:      %d        %d       %d         %d",tID, chairStatusClient[tID], 
+    mvprintw(13,55,"Sprzedane meble");
+    mvprintw(15,47,"Krzesla   Stoly   Lawki   Pieniadze",tID, chairStatusClient[tID], tableStatusClient[tID], benchStatusClient[tID]);
+    mvprintw(17+tID,35,"Klient %d:      %d        %d       %d         %d",tID, chairStatusClient[tID], 
     tableStatusClient[tID], benchStatusClient[tID], cashClient[tID]);
 
 	refresh();	
 	mtx.unlock();
+}
+
+void showStatusCash(){
+    mtx.lock();
+
+    mvprintw(35,35,"pieniadze -->     ");
+    mvprintw(35,35,"pieniadze --> %d",cash);
+
+    mvprintw(36,35,"growthrate -->     ");
+    mvprintw(36,35,"growthrate --> %d",growthRate);
+
+    refresh();
+    mtx.unlock();
 }
 
 
@@ -480,8 +483,6 @@ void startThreadWoodcutter(int tID){
     }
 }
 
-//jak starczy czasu to dodać wizualizacje produkcji desek
-//dodać info co kupił każdy klient i ile wydał pieniędzy
 //dodać wspólny showStatus tworzący "mapę" i napisy stałe
 
 void startThreedDriver(int tID){
@@ -548,6 +549,7 @@ void startThreedSawmill(int tID){
         {
             cash-=100;
             growthRate*=2;
+            showStatusCash();
         }
     }
 }
@@ -672,6 +674,7 @@ void startThreedClient(int tID){
         }
         mtx.unlock();
         showStatusClient(tID);
+        showStatusCash();
         usleep(5000000);
     }
 }
