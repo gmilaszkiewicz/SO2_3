@@ -8,7 +8,7 @@
 
 using namespace std;
 mutex mtx;
-condition_variable cv;
+condition_variable cv_forest, cv_sawmillTree;
 bool endProgram=false;
 
 const int numWoodcutter = 20;
@@ -21,10 +21,10 @@ const int numClient=3;
 
 int forestStatus=50;
 int cutTrees=0;
-int sawmillTreeStatus=20;
+int sawmillTreeStatus=0;
 
-int longPlankStatus=20;
-int shortPlankStatus=20;
+int longPlankStatus=0;
+int shortPlankStatus=0;
 
 int driverStatus[numDriver];
 
@@ -440,7 +440,7 @@ void startThreedTree(){
                 std::unique_lock<std::mutex> lck(mtx);
                 forestStatus++;
                 lck.unlock();
-                cv.notify_one();
+                cv_forest.notify_one();
                 showStatusForest();
             }      
     }
@@ -454,15 +454,9 @@ void startThreadWoodcutter(int tID){
             usleep(1000000);
             if(forestStatus<25)
             {
-                // while(forestStatus<50)
-                // {
-                //     usleep(100000);
-                // }
-                
                 std::unique_lock<std::mutex> lck(mtx);
-                while(forestStatus<50) cv.wait(lck);
-                lck.unlock();
-                
+                while(forestStatus<50) cv_forest.wait(lck);
+                lck.unlock(); 
             }
             mtx.lock();
             if((counterWoodcuter[tID])<=counterWoodcuter[(2*numWoodcutter+tID-1)%numWoodcutter] &&
@@ -507,13 +501,11 @@ void startThreedDriver(int tID){
         if(go)
         {
              showStatusCutTrees();
-             usleep(50000);
              showStatusDriver1(tID,1);
-             usleep(500000); //czas postoju ciężarówki
-             while(sawmillTreeStatus>=80)
-             {
-                 usleep(500000);
-             }
+             usleep(500000); //czas postoju ciężarówki           
+            std::unique_lock<std::mutex> lck(mtx);
+            while(sawmillTreeStatus>80) cv_sawmillTree.wait(lck);
+            lck.unlock();  
              sawmillTreeStatus+=20;
              showStatusSawmillTree();
              showStatusDriver2(tID);
@@ -528,11 +520,12 @@ void startThreedSawmill(int tID){
         make=false;
         mtx.lock();
         if(sawmillTreeStatus>0 && shortPlankStatus<=50 && longPlankStatus<=50)
-        {       
+        {      
             sawmillTreeStatus--;
             make=true;
         }
         mtx.unlock();
+        cv_sawmillTree.notify_one();
         showStatusSawmillTree();
 
         if(make)
