@@ -4,14 +4,16 @@
 #include <time.h>
 #include <unistd.h>
 #include <mutex>
+#include <condition_variable>
 
 using namespace std;
 mutex mtx;
+condition_variable cv;
 bool endProgram=false;
 
 const int numWoodcutter = 20;
 const int numDriver = 2;
-const int numSawmill = 6;
+const int numSawmill = 10;
 const int numCarpenterChair = 4;
 const int numCarpenterTable = 4;
 const int numCarpenterBench = 4;
@@ -71,8 +73,8 @@ void showStatus(){
     mvprintw(35,95,"Lawki --> %d", benchStatus);     
     mvprintw(13,55,"Sprzedane meble");
     mvprintw(15,47,"Krzesla   Stoly   Lawki   Pieniadze");
-    mvprintw(35,35,"pieniadze --> %d",cash);
-    mvprintw(36,35,"growthrate --> %d",growthRate);
+    mvprintw(45,35,"pieniadze --> %d",cash);
+    mvprintw(46,35,"growthrate --> %d",growthRate);
 
 
 
@@ -185,7 +187,7 @@ void showStatusSawmill(){
 
     mvprintw(29,173,"krotkie deski -->     ");
     mvprintw(29,173,"krotkie deski --> %d",shortPlankStatus);
-    for(int i=0;i<5;i++)
+    for(int i=0;i<9;i++)
     {
         for(int j=0;j<10;j++)
         {
@@ -420,26 +422,27 @@ void showStatusClient(int tID){
 
 void showStatusCash(){
     mtx.lock();
-    mvprintw(35,35,"pieniadze -->     ");
-    mvprintw(35,35,"pieniadze --> %d",cash);
-    mvprintw(36,35,"growthrate -->     ");
-    mvprintw(36,35,"growthrate --> %d",growthRate);
+    mvprintw(45,35,"pieniadze -->     ");
+    mvprintw(45,35,"pieniadze --> %d",cash);
+    mvprintw(46,35,"growthrate -->     ");
+    mvprintw(46,35,"growthrate --> %d",growthRate);
     refresh();
     mtx.unlock();
 }
 
 void startThreedTree(){
-
     while(1)
     {
             showStatusForest();   
-            while(forestStatus!=100)
+            while(forestStatus<=100)
             {
                 usleep(rand()%1000000 + (int)(1000000/growthRate));
+                std::unique_lock<std::mutex> lck(mtx);
                 forestStatus++;
+                lck.unlock();
+                cv.notify_one();
                 showStatusForest();
             }      
-    
     }
 }
 
@@ -451,16 +454,20 @@ void startThreadWoodcutter(int tID){
             usleep(1000000);
             if(forestStatus<25)
             {
-                while(forestStatus<50)
-                {
-                    usleep(100000);
-                }
-            }
-            if((counterWoodcuter[tID]-3)<=counterWoodcuter[(2*numWoodcutter+tID-1)%numWoodcutter] &&
-            (counterWoodcuter[tID]-3)<=counterWoodcuter[(2*numWoodcutter+tID+1)%numWoodcutter])
-            {
+                // while(forestStatus<50)
+                // {
+                //     usleep(100000);
+                // }
                 
-                mtx.lock();
+                std::unique_lock<std::mutex> lck(mtx);
+                while(forestStatus<50) cv.wait(lck);
+                lck.unlock();
+                
+            }
+            mtx.lock();
+            if((counterWoodcuter[tID])<=counterWoodcuter[(2*numWoodcutter+tID-1)%numWoodcutter] &&
+            (counterWoodcuter[tID])<=counterWoodcuter[(2*numWoodcutter+tID+1)%numWoodcutter])
+            {
                 if(forestStatus>0 && cutTrees<100)
                 {
                     counterWoodcuter[tID]++;
@@ -468,8 +475,8 @@ void startThreadWoodcutter(int tID){
                     cutTrees++;
                     work=true;
                 }
-                mtx.unlock();
-            }       
+            }  
+            mtx.unlock();     
             showStatusForest();
             showStatusCutTrees();
             if(work)
@@ -500,7 +507,7 @@ void startThreedDriver(int tID){
         if(go)
         {
              showStatusCutTrees();
-             usleep(100000);
+             usleep(50000);
              showStatusDriver1(tID,1);
              usleep(500000); //czas postoju ciężarówki
              while(sawmillTreeStatus>=80)
@@ -509,7 +516,6 @@ void startThreedDriver(int tID){
              }
              sawmillTreeStatus+=20;
              showStatusSawmillTree();
-             usleep(100000);
              showStatusDriver2(tID);
         }
     }
@@ -521,7 +527,7 @@ void startThreedSawmill(int tID){
     {
         make=false;
         mtx.lock();
-        if(sawmillTreeStatus>0)
+        if(sawmillTreeStatus>0 && shortPlankStatus<=50 && longPlankStatus<=50)
         {       
             sawmillTreeStatus--;
             make=true;
@@ -560,9 +566,10 @@ void startThreedCarpenterChair(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=5) && (chairStatus<=tableStatus) && (chairStatus<=benchStatus))
+        if((shortPlankStatus>=7 && longPlankStatus>=1) && (chairStatus<=tableStatus) && (chairStatus<=benchStatus))
         {       
-            shortPlankStatus-=5;
+            shortPlankStatus-=7;
+            longPlankStatus--;
             make=true;
         }
         mtx.unlock();
@@ -586,7 +593,7 @@ void startThreedCarpenterTable(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=4 && longPlankStatus>=3) && tableStatus<=chairStatus && tableStatus<=benchStatus)
+        if((shortPlankStatus>=6 && longPlankStatus>=3) && tableStatus<=chairStatus && tableStatus<=benchStatus)
         {       
             shortPlankStatus-=4;
             longPlankStatus-=3;
@@ -613,10 +620,10 @@ void startThreedCarpenterBench(int tID){
     {
         make = false;
         mtx.lock();
-        if((shortPlankStatus>=4 && longPlankStatus>=3) && benchStatus<=tableStatus && benchStatus<=chairStatus)
+        if((shortPlankStatus>=4 && longPlankStatus>=4) && benchStatus<=tableStatus && benchStatus<=chairStatus)
         {       
-            shortPlankStatus-=4;
-            longPlankStatus-=3;
+            shortPlankStatus-=3;
+            longPlankStatus-=4;
             make=true;
         }
         mtx.unlock();
